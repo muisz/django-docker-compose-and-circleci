@@ -31,7 +31,7 @@ jobs:
       DB_NAME: django_docker_v0
       DB_USER: root
       DB_PASSWORD: password_root
-      DB_HOST: localhost
+      DB_HOST: 127.0.0.1
 
     steps:
       - checkout
