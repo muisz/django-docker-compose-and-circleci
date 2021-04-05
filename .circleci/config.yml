@@ -1,0 +1,47 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@0.2.1
+
+workflows:
+  build-python:
+    jobs:
+      - build:
+        context: testing
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.7
+        auth:
+          username: $DOCKER_ID
+          password: $DOCKER_PASSWORD
+
+      - image: circleci/mysql:8.0
+        auth:
+          username: $DOCKER_ID
+          password: $DOCKER_PASSWORD
+        environment:
+          MYSQL_ROOT_PASSWORD: password_root
+          MYSQL_DATABASE: django_docker_v0
+        command: --default-authentication-plugin=mysql_native_password
+
+    environment:
+      DEBUG: True
+      DB_NAME: django_docker_v0
+      DB_USER: root
+      DB_PASSWORD: password_root
+      DB_HOST: localhost
+
+    steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+      - run:
+          name: "Install dependencies"
+          command: |
+            sudo pip install -r requirements.txt
+      - run:
+          name: "Test app"
+          command: |
+            python manage.py test
